@@ -3,6 +3,7 @@
 import * as readline from "readline";
 import { findLookalikeCompanies } from "./stages/ocean.js";
 import { findDecisionMakers } from "./stages/prospeo.js";
+import { sendOutreachEmails } from "./stages/brevo.js";
 
 async function main() {
   const rl = readline.createInterface({
@@ -14,23 +15,27 @@ async function main() {
     rl.close();
 
     try {
-      // Stage 1
+      // Stage 1 — Ocean.io
       const domains = await findLookalikeCompanies(domain.trim());
 
-      // Stage 2
+      if (domains.length === 0) {
+        console.log("⚠️  No lookalike companies found — exiting.");
+        return;
+      }
+
+      // Stage 2 — Prospeo (contacts + emails)
       const contacts = await findDecisionMakers(domains);
 
-      console.log(`\n📦 Stage 2 complete — ${contacts.length} contacts ready for Stage 3`);
-      console.table(
-        contacts.map((c) => ({
-          Name: c.fullName,
-          Title: c.title,
-          Company: c.company,
-          LinkedIn: c.linkedinUrl,
-        }))
-      );
+      if (contacts.length === 0) {
+        console.log("⚠️  No contacts with verified emails found — exiting.");
+        return;
+      }
+
+      // Stage 3 — Brevo (send emails with safety checkpoint)
+      await sendOutreachEmails(contacts);
+
     } catch (err: any) {
-      console.error("❌ Error:", err.message);
+      console.error("❌ Pipeline error:", err.message);
     }
   });
 }
