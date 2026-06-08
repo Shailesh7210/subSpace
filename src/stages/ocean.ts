@@ -8,7 +8,7 @@ const OCEAN_API_URL = "https://api.ocean.io/v3/search/companies";
 
 export async function findLookalikeCompanies(
   seedDomain: string,
-  limit: number = 10
+  limit: number = 5
 ): Promise<string[]> {
   console.log(`\n🔍 [Ocean.io] Finding lookalike companies for: ${seedDomain}`);
 

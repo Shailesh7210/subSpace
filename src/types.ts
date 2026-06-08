@@ -22,3 +22,4 @@ export interface Contact {
 export interface ContactWithEmail extends Contact {
   email: string;
 }
+
